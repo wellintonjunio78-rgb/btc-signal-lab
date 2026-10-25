@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="theme-color" content="#0b1020"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="BTC Signal Lab"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.svg"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTC Signal Lab — Painel independente</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2d;--line:#26334d;--muted:#9aabc5;--text:#eef4ff;--green:#36d399;--red:#fb7185;--amber:#fbbf24}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#17223b,#0b1020 48%);font:15px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+main{max-width:1200px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(24px,4vw,34px);margin:0}p{color:var(--muted);margin:.35rem 0}button{border:1px solid #3b4b68;background:#1b2943;color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.panel{background:rgba(18,26,45,.92);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:24px;font-weight:700;margin-top:8px}.small{font-size:12px;color:var(--muted)}.layout{display:grid;grid-template-columns:1.7fr 1fr;gap:12px;margin-top:12px}canvas{width:100%;height:320px;display:block;margin-top:12px}.signal{font-size:28px;font-weight:800;margin:8px 0}.buy{color:var(--green)}.sell{color:var(--red)}.wait{color:var(--amber)}ul{padding-left:20px;color:#d5dfef;line-height:1.7}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}td,th{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:600}.foot{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6}.status{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:8px 11px;border-radius:99px;color:var(--muted);font-size:12px}.dot{width:7px;height:7px;border-radius:50%;background:var(--amber)}.dot.ok{background:var(--green)}.error{color:var(--red);font-size:13px;margin-top:8px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}main{padding:14px}.value{font-size:21px}}
+</style>
+</head>
+<body><main>
+<header><div><h1>BTC Signal Lab</h1><p>Painel independente de análise técnica · candles de 1 minuto</p></div><div><span class="status"><span class="dot" id="dot"></span><span id="status">Conectando à fonte pública…</span></span> <button id="refresh">Atualizar</button></div></header>
+<div class="grid">
+ <section class="panel"><div class="label">Preço BTC/USDT</div><div class="value" id="price">—</div><div class="small" id="priceTime">Aguardando dados</div></section>
+ <section class="panel"><div class="label">Sinal atual</div><div class="signal wait" id="signal">AGUARDAR</div><div class="small" id="signalTime">Sem confirmação</div></section>
+ <section class="panel"><div class="label">RSI (14)</div><div class="value" id="rsi">—</div><div class="small">Referência: 30 / 70</div></section>
+ <section class="panel"><div class="label">EMA (9 / 21)</div><div class="value" id="ema">—</div><div class="small" id="emaNote">Direção de curto prazo</div></section>
+</div>
+<div class="layout">
+ <section class="panel"><div class="label">BTC/USDT · últimos candles de 1 minuto</div><canvas id="chart" width="900" height="320" aria-label="Gráfico de fechamento"></canvas><div class="small">Gráfico de fechamento simplificado. Os candles incompletos são excluídos do cálculo do sinal.</div></section>
+ <section class="panel"><div class="label">Por que este sinal?</div><div class="signal wait" id="decision">AGUARDAR</div><ul id="reasons"><li>Carregando dados de mercado…</li></ul><div class="small" id="indicators">MACD: — · ATR: —</div></section>
+</div>
+<section class="panel" style="margin-top:12px"><div class="label">Histórico recente de sinais</div><div class="tablewrap"><table><thead><tr><th>Horário (UTC)</th><th>Preço</th><th>Sinal</th><th>RSI</th><th>EMA 9/21</th></tr></thead><tbody id="history"><tr><td colspan="5">Aguardando dados…</td></tr></tbody></table></div></section>
+<div class="foot"><strong>Aviso:</strong> protótipo educacional, não é recomendação financeira e não executa ordens. BTC/USDT é uma aproximação, não uma cotação idêntica a BTC/USD. Os sinais são heurísticos e não comprovam rentabilidade. Dados via endpoint público da Binance; disponibilidade e regras de acesso podem mudar. Não insira chaves de API nem credenciais.</div>
+<div class="error" id="error" role="status"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let historyRows=[], lastSignalKey=null, refreshTimer;
+const fmt=n=>Number.isFinite(n)?n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:NaN;
+function emaSeries(values,period){let out=Array(values.length).fill(NaN),k=2/(period+1),prev;values.forEach((v,i)=>{prev=i===0?v:v*k+prev*(1-k);if(i>=period-1)out[i]=prev});return out}
+function rsiSeries(c,p=14){let out=Array(c.length).fill(NaN);for(let i=p;i<c.length;i++){let gains=0,losses=0;for(let j=i-p+1;j<=i;j++){let d=c[j]-c[j-1];if(d>0)gains+=d;else losses-=d}let rs=losses===0?100:gains/losses;out[i]=100-100/(1+rs)}return out}
+function atrSeries(rows,p=14){let tr=rows.map((r,i)=>i===0?r.h-r.l:Math.max(r.h-r.l,Math.abs(r.h-rows[i-1].c),Math.abs(r.l-rows[i-1].c)));return tr.map((_,i)=>i<p-1?NaN:avg(tr.slice(i-p+1,i+1)))}
+function macdSeries(c){let a=emaSeries(c,12),b=emaSeries(c,26),m=c.map((_,i)=>a[i]-b[i]);let valid=m.map(v=>Number.isFinite(v)?v:0),s=emaSeries(valid,9);return {macd:m,signal:s}}
+function drawChart(rows){const cv=$('chart'),ctx=cv.getContext('2d'),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);if(!rows.length)return;let vals=rows.slice(-100).map(r=>r.c),lo=Math.min(...vals),hi=Math.max(...vals),pad=(hi-lo)*.12||1;lo-=pad;hi+=pad;ctx.strokeStyle='#26334d';ctx.lineWidth=1;ctx.fillStyle='#9aabc5';ctx.font='12px system-ui';for(let i=0;i<5;i++){let y=20+i*(h-40)/4;ctx.beginPath();ctx.moveTo(48,y);ctx.lineTo(w-8,y);ctx.stroke();ctx.fillText(fmt(hi-(hi-lo)*i/4),2,y+4)}ctx.beginPath();vals.forEach((v,i)=>{let x=48+i*(w-60)/Math.max(1,vals.length-1),y=20+(hi-v)*(h-40)/(hi-lo);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle='#62a8ff';ctx.lineWidth=2;ctx.stroke()}
+function signalFor(rows){let c=rows.map(r=>r.c),e9=emaSeries(c,9),e21=emaSeries(c,21),rsi=rsiSeries(c),atr=atrSeries(rows),macd=macdSeries(c),i=rows.length-1;
+let checks={trendUp:e9[i]>e21[i],trendDown:e9[i]<e21[i],rsiUp:rsi[i]>=50&&rsi[i]<=68,rsiDown:rsi[i]<=50&&rsi[i]>=32,macdUp:macd.macd[i]>macd.signal[i],macdDown:macd.macd[i]<macd.signal[i]};
+let buy=checks.trendUp&&checks.rsiUp&&checks.macdUp,sell=checks.trendDown&&checks.rsiDown&&checks.macdDown;
+return {s:buy?'COMPRA':sell?'VENDA':'AGUARDAR',rsi:rsi[i],e9:e9[i],e21:e21[i],atr:atr[i],macd:macd.macd[i],macdSig:macd.signal[i],checks,price:c[i],time:rows[i].t};}
+function reasons(x){let a=[];a.push(`EMA 9 ${x.e9>x.e21?'acima':'abaixo'} da EMA 21: ${x.e9>x.e21?'viés positivo':'viés negativo'}.`);a.push(`RSI em ${fmt(x.rsi)}: ${x.rsi>68?'zona elevada':x.rsi<32?'zona baixa':'faixa intermediária'}.`);a.push(`MACD ${x.macd>x.macdSig?'acima':'abaixo'} da linha de sinal.`);if(x.s==='AGUARDAR')a.push('Os filtros não concordam todos; evitar forçar uma entrada.');else a.push('Todos os filtros desta regra simples concordam; ainda é necessário validar custos e desempenho histórico.');return a}
+function render(rows){let x=signalFor(rows),cls=x.s==='COMPRA'?'buy':x.s==='VENDA'?'sell':'wait';$('price').textContent=fmt(x.price);$('priceTime').textContent='Último candle fechado: '+new Date(x.time).toLocaleTimeString('pt-BR',{timeZone:'UTC'})+' UTC';$('signal').textContent=x.s;$('signal').className='signal '+cls;$('decision').textContent=x.s;$('decision').className='signal '+cls;$('signalTime').textContent='Regra heurística · sem garantia preditiva';$('rsi').textContent=fmt(x.rsi);$('ema').textContent=fmt(x.e9)+' / '+fmt(x.e21);$('emaNote').textContent=x.e9>x.e21?'EMA 9 acima da EMA 21':'EMA 9 abaixo da EMA 21';$('indicators').textContent='MACD: '+fmt(x.macd)+' · ATR(14): '+fmt(x.atr);$('reasons').innerHTML=reasons(x).map(t=>'<li>'+t+'</li>').join('');drawChart(rows);
+let key=String(x.time)+x.s;if(key!==lastSignalKey){lastSignalKey=key;historyRows.unshift(x);historyRows=historyRows.slice(0,12)}$('history').innerHTML=historyRows.map(z=>`<tr><td>${new Date(z.time).toISOString().slice(11,19)}</td><td>${fmt(z.price)}</td><td class="${z.s==='COMPRA'?'buy':z.s==='VENDA'?'sell':'wait'}">${z.s}</td><td>${fmt(z.rsi)}</td><td>${fmt(z.e9)} / ${fmt(z.e21)}</td></tr>`).join('')}
+async function load(){ $('error').textContent='';$('status').textContent='Buscando candles…';$('dot').className='dot';try{const u='https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=500';const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('A fonte retornou HTTP '+r.status);const raw=await r.json();if(!Array.isArray(raw)||raw.length<50)throw Error('Histórico insuficiente recebido');const now=Date.now();let rows=raw.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5],closeTime:k[6]})).filter(k=>k.closeTime<now);if(rows.length<30)throw Error('Ainda não há candles fechados suficientes');render(rows);$('status').textContent='Dados públicos atualizados';$('dot').className='dot ok'}catch(e){$('status').textContent='Fonte indisponível';$('error').textContent='Não foi possível carregar dados: '+e.message+'. Tente novamente ou verifique a conectividade/região.'}}
+$('refresh').addEventListener('click',load);load();refreshTimer=setInterval(load,15000);
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+</script></body></html>

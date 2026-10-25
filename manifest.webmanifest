@@ -1,0 +1,14 @@
+{
+  "name": "BTC Signal Lab",
+  "short_name": "BTC Signal",
+  "description": "Painel independente de análise técnica de BTC/USDT em candles de 1 minuto.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    {"src":"icon-192.svg","sizes":"192x192","type":"image/svg+xml","purpose":"any"},
+    {"src":"icon-512.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any"}
+  ]
+}
