@@ -1,7 +1,11 @@
-# Crypto Signal Lab — scanner inteligente multiativos
+# Crypto Signal Lab — Binance Live V2
 
-Inclui varredura de 12 ativos em paralelo a cada 60 segundos, modelo de regressão logística separado para cada ativo, validação cronológica em 80 exemplos, comparação com baseline e indicação AGUARDAR se os critérios mínimos não forem atendidos. Mantém pré-alerta 20s antes do minuto no ativo selecionado e WebSocket para o ativo escolhido.
+Aplicativo estático para GitHub Pages. Use `index.html` na raiz.
 
-**Não é IA de 100% de acerto.** As previsões são experimentais e calculadas com preços públicos da Binance, não com o feed Hezilex. A avaliação histórica é limitada e não valida operações de 60 segundos na Hezilex. Alguns pares podem não estar disponíveis. Requer internet, site aberto e navegador permitindo conexão com Binance.
+**Recursos:** 12 ativos Binance Spot (pares USDT); candles OHLC de 1 minuto; EMA 9/21; volume; horário de Brasília; scanner de modelos estatísticos locais; pré-alerta experimental. Atualizações do ativo selecionado por WebSocket; scanner de todos os ativos a cada 60 s via API REST.
 
-Para publicar no GitHub Pages, substitua os arquivos na raiz do repositório, especialmente index.html e sw.js.
+**Limitações:** o scanner não é um fluxo de ticks de todos os ativos. Modelos são regressões logísticas simples e backtests curtos, sem taxas, spread, slippage ou execução real. Não é garantia de acerto, não faz ordens e não requer chaves de API. O navegador deve permanecer aberto para o aviso sonoro. Se dados estiverem atrasados, não use o sinal.
+
+**Instalação:** envie todos os arquivos para a raiz do repositório GitHub Pages, branch main; confirme em Settings > Pages. Se versão antiga persistir, remova os dados do site no Safari (service worker pode manter cache).
+
+V3: previsão experimental para o próximo minuto disponível desde o começo do minuto atual (até 60 segundos antes), recalculada conforme chegam novos candles parciais. Não é previsão garantida nem recomendação de investimento.
