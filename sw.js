@@ -1,4 +1,4 @@
-const CACHE = "btc-signal-lab-live-v2";
+const CACHE = "btc-signal-lab-live-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.svg", "./icon-512.svg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
