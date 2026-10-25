@@ -1,12 +1,11 @@
-# BTC Signal Lab V6 — Radar de entradas
+# Binance AI Scanner — Spot V2
 
-- O gráfico selecionado recebe candles em tempo real via Binance WebSocket.
-- O radar consulta 12 ativos a cada 30 segundos enquanto a aba está aberta.
-- Pré-alertas são hipóteses, não previsões garantidas nem ordens.
-- Radar exige concordância entre modelo estatístico, confirmação técnica recente e dados não atrasados.
-- Se não houver oportunidade validada, mostra AGUARDAR.
-- Clique no ativo do radar para abrir seu gráfico.
-- O som requer ativação manual. Não há notificações quando o navegador está fechado.
-- Não foram realizados backtests extensivos nem validação de rentabilidade.
+Site estático para GitHub Pages. Envie `index.html` à raiz do repositório.
 
-Para publicar, substitua os arquivos na raiz do repositório GitHub Pages.
+- Usa dados públicos reais da Binance Spot (REST e WebSocket do gráfico selecionado).
+- Examina até 35 pares USDT de maior volume, em lotes, a cada 15 segundos. Não analisa todos os ativos simultaneamente.
+- Pré-alerta para a abertura da próxima vela, condicionado a indicadores das velas fechadas e ao movimento da vela em formação, de 12 a 55 segundos antes. Pode falhar, desaparecer ou chegar tarde.
+- COMPRA indica possível aquisição; VENDA somente para ativos que você informou possuir. Não há venda a descoberto no Spot.
+- Resultado direcional não inclui spread, taxas, slippage e não demonstra rentabilidade. Histórico somente na sessão do navegador.
+- Não é uma IA treinada: utiliza regras técnicas. Não é recomendação de investimento.
+- Precisa de internet, acesso às APIs da Binance e navegador aberto; não envia notificações em segundo plano.
