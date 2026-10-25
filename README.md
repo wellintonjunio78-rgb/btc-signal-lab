@@ -1,11 +1,12 @@
-# Crypto Signal Lab — Binance Live V2
+# BTC Signal Lab V6 — Radar de entradas
 
-Aplicativo estático para GitHub Pages. Use `index.html` na raiz.
+- O gráfico selecionado recebe candles em tempo real via Binance WebSocket.
+- O radar consulta 12 ativos a cada 30 segundos enquanto a aba está aberta.
+- Pré-alertas são hipóteses, não previsões garantidas nem ordens.
+- Radar exige concordância entre modelo estatístico, confirmação técnica recente e dados não atrasados.
+- Se não houver oportunidade validada, mostra AGUARDAR.
+- Clique no ativo do radar para abrir seu gráfico.
+- O som requer ativação manual. Não há notificações quando o navegador está fechado.
+- Não foram realizados backtests extensivos nem validação de rentabilidade.
 
-**Recursos:** 12 ativos Binance Spot (pares USDT); candles OHLC de 1 minuto; EMA 9/21; volume; horário de Brasília; scanner de modelos estatísticos locais; pré-alerta experimental. Atualizações do ativo selecionado por WebSocket; scanner de todos os ativos a cada 60 s via API REST.
-
-**Limitações:** o scanner não é um fluxo de ticks de todos os ativos. Modelos são regressões logísticas simples e backtests curtos, sem taxas, spread, slippage ou execução real. Não é garantia de acerto, não faz ordens e não requer chaves de API. O navegador deve permanecer aberto para o aviso sonoro. Se dados estiverem atrasados, não use o sinal.
-
-**Instalação:** envie todos os arquivos para a raiz do repositório GitHub Pages, branch main; confirme em Settings > Pages. Se versão antiga persistir, remova os dados do site no Safari (service worker pode manter cache).
-
-V3: previsão experimental para o próximo minuto disponível desde o começo do minuto atual (até 60 segundos antes), recalculada conforme chegam novos candles parciais. Não é previsão garantida nem recomendação de investimento.
+Para publicar, substitua os arquivos na raiz do repositório GitHub Pages.
