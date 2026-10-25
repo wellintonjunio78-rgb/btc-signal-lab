@@ -15,3 +15,9 @@ Este pacote prepara o protótipo para ser publicado como um Progressive Web App 
 - A disponibilidade do endpoint de mercado pode variar.
 - O REA/MCP não está embutido no app: ele deve ser configurado separadamente num ambiente de desenvolvimento compatível.
 - Os sinais são experimentais, não constituem recomendação financeira e não garantem lucro.
+
+
+## Versão ao vivo (WebSocket)
+Esta versão recebe o stream público `btcusdt@kline_1m` da Binance por WebSocket seguro. O preço e o sinal são recalculados enquanto o candle de 1 minuto está em formação; por isso, o sinal ao vivo é provisório e pode mudar antes do fechamento. O histórico de sinais registra os candles fechados. Se a conexão cair, o app tenta reconectar automaticamente. Requer internet e disponibilidade do serviço público.
+
+Para atualizar o GitHub Pages, envie os arquivos desta pasta para a raiz do repositório e substitua os arquivos existentes, incluindo `index.html` e `sw.js`; depois faça Commit changes.
