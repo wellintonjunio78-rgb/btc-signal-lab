@@ -1,9 +1,7 @@
-# BTC Signal Lab — simulação de 1 minuto
+# Crypto Signal Lab — scanner inteligente multiativos
 
-Site estático para GitHub Pages. Descompacte e envie **todos os arquivos** à raiz do repositório, substituindo `index.html`, `sw.js` e `manifest.webmanifest`. Depois, atualize a página (se necessário, limpe os dados do site).
+Inclui varredura de 12 ativos em paralelo a cada 60 segundos, modelo de regressão logística separado para cada ativo, validação cronológica em 80 exemplos, comparação com baseline e indicação AGUARDAR se os critérios mínimos não forem atendidos. Mantém pré-alerta 20s antes do minuto no ativo selecionado e WebSocket para o ativo escolhido.
 
-- Somente Bitcoin BTC/USDT da Binance. Não usa dados da Hezilex.
-- WebSocket para atualizações de candle de 1 minuto; pré-alertas experimentais nos 20 segundos anteriores à virada.
-- Modelo estatístico simples ajustado a candles históricos e testado em uma fatia separada; não é uma IA validada para lucro.
-- Simulações locais no navegador, com registro de preço de entrada e saída observados no fluxo; exigem página aberta. Se o fluxo ficar interrompido, os resultados podem ficar inexatos. O preço de execução da Hezilex pode ser diferente.
-- Nenhuma ordem real, nenhuma garantia de acerto, nenhuma conexão com Hezilex.
+**Não é IA de 100% de acerto.** As previsões são experimentais e calculadas com preços públicos da Binance, não com o feed Hezilex. A avaliação histórica é limitada e não valida operações de 60 segundos na Hezilex. Alguns pares podem não estar disponíveis. Requer internet, site aberto e navegador permitindo conexão com Binance.
+
+Para publicar no GitHub Pages, substitua os arquivos na raiz do repositório, especialmente index.html e sw.js.
